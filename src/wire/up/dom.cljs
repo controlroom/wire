@@ -21,7 +21,7 @@
 
 (defn inject-events [wire dom]
   (doseq [[k f] (events/build-mouse-events (partial event-fn dom))]
-    (aset dom (keyword->event k) #(f %))))
+    (.addEventListener dom (keyword->event k) #(f %))))
 
 (defn wire-up
   "Attach wire to dom object and inject act fn calles to all appropriate
