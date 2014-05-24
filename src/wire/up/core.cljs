@@ -33,7 +33,4 @@
 (defmethod build-data :mouse [data]
   {:event (:evt data)})
 
-(defn build-act [type wire action evt]
-  (let [data {:type type, :action action, :evt evt}]
-    (wire/act wire (build-criteria data) (build-data data))))
 

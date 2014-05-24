@@ -28,7 +28,9 @@
     (let [fs (find-tap-fns criteria (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
-          (f (merge (:context data) payload)))))))
+          (f (merge {::wire this}
+                    (:context data)
+                    payload)))))))
 
 (defn context [wire]
   (:context (-data wire)))
