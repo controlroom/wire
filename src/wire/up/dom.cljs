@@ -24,6 +24,8 @@
     (aset dom (keyword->event k) #(f %))))
 
 (defn wire-up
+  "Attach wire to dom object and inject act fn calles to all appropriate
+  events"
   [wire dom]
   (if-let [wires (aget dom "__wires")]
     (aset dom "__wires" (conj wires wire))
@@ -31,4 +33,10 @@
         (aset dom "__wires" [wire])))
   wire)
 
-(defn unwire  [wire dom])
+(defn unwire
+  "Remove wire from dom object"
+  [wire dom]
+  (let [wires (into [] (remove #(= (:id (wire.core/data wire))
+                                   (:id (wire.core/data %)))
+                               (aget dom "__wires")))]
+    (aset dom "__wires" wires)))

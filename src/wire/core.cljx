@@ -35,6 +35,9 @@
 (defn context [wire]
   (:context (-data wire)))
 
+(defn data [wire]
+  (-data wire))
+
 (defn lay
   "Allows you to inject both data and a namespace into your wire. The data and
   namespace can only be retrieved by an owner and only when a wire is acted
@@ -64,5 +67,5 @@
   "Create a new wire"
   [& data]
   (if (empty? data)
-    (Wire. {:key [] :context {} :taps {}})
+    (Wire. {:id (str (gensym)) :key [] :context {} :taps {}})
     (Wire. (first data))))
