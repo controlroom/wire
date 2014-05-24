@@ -1,4 +1,4 @@
-(defproject wire "0.1.0"
+(defproject controlroom/wire "0.1.0"
   :description "Sane intercomponent communication"
   :url "http://controlroom.io/wire"
   :license {:name "Eclipse Public License"
