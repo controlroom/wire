@@ -15,13 +15,11 @@
             (wire.core/act wire criteria return-data)))))))
 
 (defn keyword->event [kw]
-  (-> (str kw)
-      (subs 1)
-      (lower-case)))
+  (get events/react-handler->dom-listener kw))
 
 (defn inject-events [wire dom]
-  (doseq [[k f] (events/build-mouse-events (partial event-fn dom))]
-    (.addEventListener dom (keyword->event k) #(f %))))
+  (doseq [[kw f] (events/build-mouse-events (partial event-fn dom))]
+    (.addEventListener dom (keyword->event kw) #(f %))))
 
 (defn wire-up
   "Attach wire to dom object and inject act fn calles to all appropriate
