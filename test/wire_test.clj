@@ -1,6 +1,6 @@
 (ns wire-test
   (:require [clojure.test :refer :all]
-            [wire :refer :all]))
+            [wire.core :refer :all]))
 
 (deftest unit-find-tap-fns
   (testing "single match"
@@ -24,18 +24,18 @@
 (deftest wire-tap-basics
   (testing "tap can listen to basic key messages"
     (testing "- without lay"
-      (let [r (atom nil)]
+      (let [r (atom nil) ]
         (-> (wire)
             (tap :k (fn [o] (reset! r o)))
-            (act :k {}))
-        (is (= @r {}))))
+            (act :k {:test "string"}))
+        (is (= (:test @r) "string"))))
     (testing "- with lay"
       (let [r (atom nil)]
         (-> (wire)
             (tap :k (fn [o] (reset! r o)))
             (lay :l1)
-            (act :k {}))
-        (is (= @r {})))))
+            (act :k {:test "awesome"}))
+        (is (= (:test @r) "awesome")))))
   (testing "multiple taps can listen to an act"
     (let [r (atom 0)]
       (-> (wire)
@@ -50,7 +50,7 @@
           (tap :k (fn [o] (reset! r o)))
           (lay :l1 {:id 1})
           (act :k {:data nil}))
-      (is (= @r {:id 1 :data nil})))))
+      (is (= (:id @r) 1)))))
 
 (deftest wire-act-basics
   (testing "act payload will override context"
@@ -59,14 +59,14 @@
           (tap :k (fn [o] (reset! r o)))
           (lay :l1 {:data nil})
           (act :k  {:data :something}))
-      (is (= @r {:data :something}))))
+      (is (= (:data @r) :something))))
   (testing "act can be called without payload"
     (let [r (atom nil)]
       (-> (wire)
           (tap :k (fn [o] (reset! r o)))
           (lay :l1 {:data :something})
           (act :k))
-      (is (= @r {:data :something})))))
+      (is (= (:data @r) :something)))))
 
 (deftest wire-tap-multiple-criteria
   (let [match {:data :something}]
@@ -76,13 +76,13 @@
         (-> (wire)
             (tap {:type :input} (fn [o] (reset! r o)))
             (act {:type :input} match))
-        (is (= @r match))))
+        (is (= (:data @r) :something))))
     (testing " - different criteria"
       (let [r (atom nil)]
         (-> (wire)
             (tap {:other :basic} (fn [o] (reset! r o)))
             (act {:type :something :other :basic} match))
-        (is (= @r match))))
+        (is (= (:data @r) :something))))
      (testing " - criteria with a miss"
        (let [r (atom nil)]
          (-> (wire)
@@ -90,9 +90,20 @@
              (act {:type :input} match))
          (is (not= @r match)))))))
 
+(deftest wire-taps
+  (testing "can create multiple wiretaps at once"
+    (let [r (atom 0)]
+      (-> (wire)
+          (taps
+            :r (fn [o] (swap! r inc))
+            :r (fn [o] (swap! r inc)))
+          (act :r))
+      (is (= @r 2)))))
+
 (deftest wire-tests
   (unit-find-tap-fns)
   (wire-lay)
   (wire-tap-basics)
   (wire-act-basics)
-  (wire-tap-multiple-criteria))
+  (wire-tap-multiple-criteria)
+  (wire-taps))

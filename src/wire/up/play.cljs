@@ -2,14 +2,15 @@
   (:refer-clojure :exclude [map meta time])
   (:require-macros [wire.up.play])
   (:require [play.dom]
-            [wire.core :as wire]
-            [wire.up.core :as core]
+            [wire.core]
+            [wire.up.core]
             [wire.up.events :as events]))
 
 (defn event-fn [wire type action]
   (fn [event]
-    (let [data {:type type, :action action, :event event}]
-      (wire/act wire (core/build-criteria data) (core/build-data data)))))
+    (let [data {:type type, :action action, :event event, :context :play}]
+      (wire.core/act wire (wire.up.core/build-criteria data)
+                          (wire.up.core/build-data data)))))
 
 (defn inject-acts-for-tag [tag-name wire]
   (merge

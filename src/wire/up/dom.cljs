@@ -7,7 +7,7 @@
 (defn event-fn [dom type action]
   (fn [event]
     (let [wires (aget dom "__wires")
-          data {:type type, :action action, :event event} ]
+          data {:type type, :action action, :event event, :context :dom}]
       (if (not (empty? wires))
         (let [criteria    (wire.up.core/build-criteria data)
               return-data (wire.up.core/build-data data)]
@@ -23,7 +23,7 @@
 
 (defn wire-up
   "Attach wire to dom object and inject act fn calles to all appropriate
-  events"
+  events. If already wired up, inject wire into wires property"
   [wire dom]
   (if-let [wires (aget dom "__wires")]
     (aset dom "__wires" (conj wires wire))

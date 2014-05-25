@@ -56,6 +56,10 @@
   ;; Map criteria to :key if anything other an map is passed
   (-tap wire (keyed-criteria criteria) f))
 
+(defn taps
+  [wire & taps]
+  (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
+
 (defn act
   "Send a message up the wire."
   ([wire criteria]
