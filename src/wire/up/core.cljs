@@ -13,7 +13,7 @@
               :class  :keyboard
               :key    (keyword (str "keyboard-" (:action data)))
               :action (keyword (:action data))}
-        desc (keycode->descriptor (.-keyCode (:evt data)))]
+        desc (keycode->descriptor (.-keyCode (:event data)))]
     (-> base
         (cond-> desc (assoc :keypress desc)))))
 
@@ -28,9 +28,9 @@
 (defmulti  build-data :type)
 
 (defmethod build-data :keyboard [data]
-  {:event (:evt data)})
+  {:event (:event data)})
 
 (defmethod build-data :mouse [data]
-  {:event (:evt data)})
+  {:event (:event data)})
 
 

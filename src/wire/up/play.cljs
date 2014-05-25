@@ -7,8 +7,8 @@
             [wire.up.events :as events]))
 
 (defn event-fn [wire type action]
-  (fn [evt]
-    (let [data {:type type, :action action, :evt evt}]
+  (fn [event]
+    (let [data {:type type, :action action, :event event}]
       (wire/act wire (core/build-criteria data) (core/build-data data)))))
 
 (defn inject-acts-for-tag [tag-name wire]

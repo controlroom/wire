@@ -5,9 +5,9 @@
             [clojure.string :refer [lower-case]]))
 
 (defn event-fn [dom type action]
-  (fn [evt]
+  (fn [event]
     (let [wires (aget dom "__wires")
-          data {:type type, :action action, :evt evt} ]
+          data {:type type, :action action, :event event} ]
       (if (not (empty? wires))
         (let [criteria    (wire.up.core/build-criteria data)
               return-data (wire.up.core/build-data data)]
