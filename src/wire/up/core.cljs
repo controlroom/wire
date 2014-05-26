@@ -1,6 +1,6 @@
 (ns wire.up.core
-  (:require [wire.utils :as utils]
-            [wire.core  :as wire]))
+  (:require [wire.up.utils :as utils]
+            [wire.core     :as wire]))
 
 (defn keycode->descriptor [code]
   (get utils/keycode-map code))
