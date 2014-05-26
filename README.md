@@ -1,4 +1,4 @@
-# Wire
+<img src="http://controlroom.io/images/wire-logo.png" width=300/>
 
 **Wire** is a Clojure(Script) library for sanely managing component
 communication
