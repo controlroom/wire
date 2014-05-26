@@ -42,7 +42,7 @@
   "Allows you to inject both data and a namespace into your wire. The data and
   namespace can only be retrieved by an owner and only when a wire is acted
   upon. Attaching data allows for components to have state, yet behave
-  anonymously from that state, allowing for simple creation and testing"
+  anonymously from that state"
   [wire key & data]
   (-lay wire key (first data)))
 
@@ -57,6 +57,11 @@
   (-tap wire (keyed-criteria criteria) f))
 
 (defn taps
+  "Allow attachment of multiple taps at once. Can list keys/fns in pairs.
+
+  (wire/taps wire
+    :key-1         (fn [o] (do-something o))
+    {:other :keys} (fn [o] (somethind-else o)))"
   [wire & taps]
   (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
 
