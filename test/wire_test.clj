@@ -11,15 +11,16 @@
         (is (empty? (find-tap-fns {:b 4} registered)))))))
 
 (deftest wire-lay
-  (let [laid-wire (lay (wire) :l1 {:foo "info"})]
-    (testing "can lay new wire context"
-      (is (= (context laid-wire) {:foo "info"})))
-    (testing "can add to context"
-      (let [level-2-wire (lay laid-wire :l2 {:bar 12})]
-        (is (= (context level-2-wire) {:foo "info" :bar 12}))))
-    (testing "can override previous context data"
-      (let [level-2-wire (lay laid-wire :l2 {:foo 9})]
-        (is (= (context level-2-wire) {:foo 9}))))))
+  (testing "updating context"
+    (let [laid-wire (lay (wire) :l1 {:foo "info"})]
+      (testing "can lay new wire context"
+        (is (= (:context (data laid-wire)) {:foo "info"})))
+      (testing "can add to context"
+        (let [level-2-wire (lay laid-wire :l2 {:bar 12})]
+          (is (= (:context (data level-2-wire)) {:foo "info" :bar 12}))))
+      (testing "can override previous context data"
+        (let [level-2-wire (lay laid-wire :l2 {:foo 9})]
+          (is (= (:context (data level-2-wire)) {:foo 9})))))))
 
 (deftest wire-tap-basics
   (testing "tap can listen to basic key messages"

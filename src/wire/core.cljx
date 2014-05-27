@@ -32,9 +32,6 @@
                     (:context data)
                     payload)))))))
 
-(defn context [wire]
-  (:context (-data wire)))
-
 (defn data [wire]
   (-data wire))
 
