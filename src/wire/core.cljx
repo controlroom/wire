@@ -70,7 +70,7 @@
 
 (defn wire
   "Create a new wire"
-  [& data]
-  (if (empty? data)
-    (Wire. {:id (str (gensym)) :key [] :context {} :taps {}})
-    (Wire. (first data))))
+  ([]
+   (Wire. {:id (str (gensym)) :criteria {} :context {} :taps {}}))
+  ([data]
+   (Wire. data)))
