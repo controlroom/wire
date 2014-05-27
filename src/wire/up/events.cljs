@@ -4,7 +4,7 @@
 ;; Event terms
 ;; Vector of vectors containing:
 ;;
-;; [React Handler, DOM listener, Play Action]
+;; [React Handler, DOM listener, Wire Action]
 (def mouse-event-terms
   [[:onClick       "click"      "click"]
    [:onDoubleClick "dblclick"   "double-click"]
@@ -41,8 +41,8 @@
 ;; Event builders
 (defn build-events [event-fn type terms]
   (into {}
-    (map (fn [[react-h _ play-h]]
-              [react-h (event-fn type play-h)])
+    (map (fn [[react-h _ show-h]]
+              [react-h (event-fn type show-h)])
          terms)))
 
 (defn build-mouse-events [event-fn]
