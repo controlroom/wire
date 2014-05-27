@@ -20,7 +20,22 @@
           (is (= (:context (data level-2-wire)) {:foo "info" :bar 12}))))
       (testing "can override previous context data"
         (let [level-2-wire (lay laid-wire :l2 {:foo 9})]
-          (is (= (:context (data level-2-wire)) {:foo 9})))))))
+          (is (= (:context (data level-2-wire)) {:foo 9}))))))
+  (testing "updating lay criteria"
+    (testing "understands basic criteria"
+      (let [r (atom nil)]
+        (-> (wire)
+            (tap :awesome (fn [o] (reset! r o)))
+            (lay :awesome)
+            (act {:toast :neat} {:test "basic"}))
+        (is (= (:test @r) "basic"))))
+    (testing "understands complex criteria"
+      (let [r (atom nil)]
+        (-> (wire)
+            (tap {:base :stuff} (fn [o] (reset! r o)))
+            (lay {:base :stuff})
+            (act :k {:test "something"}))
+        (is (= (:test @r) "something"))))))
 
 (deftest wire-tap-basics
   (testing "tap can listen to basic key messages"

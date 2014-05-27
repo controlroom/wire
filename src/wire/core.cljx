@@ -18,14 +18,14 @@
 (deftype Wire [data]
   BaseWire
   (-data [this] data)
-  (-lay [this key context]
+  (-lay [this criteria context]
     (wire (-> data
               (update-in [:context] merge context)
-              (update-in [:key] conj key))))
+              (update-in [:criteria] merge criteria))))
   (-tap [this criteria f]
     (wire (update-in data [:taps (set criteria)] conj f)))
   (-act [this criteria payload]
-    (let [fs (find-tap-fns criteria (:taps data))]
+    (let [fs (find-tap-fns (merge (:criteria data) criteria) (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
           (f (merge {::wire this}
