@@ -50,7 +50,6 @@
   "Attaches a wiretap listener to some criteria. When the wire is acted upon,
   it looks for matching criteria on collected wiretaps"
   [wire criteria f]
-  ;; Map criteria to :key if anything other an map is passed
   (-tap wire (keyed-criteria criteria) f))
 
 (defn taps
