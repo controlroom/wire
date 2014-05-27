@@ -1,4 +1,5 @@
 (ns wire.core
+  "Wire is a simple abstraction allowing for message streaming"
   (:require [clojure.set :refer [difference]]))
 
 (defprotocol BaseWire
@@ -88,7 +89,7 @@
   (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
 
 (defn act
-  "Send a message up the wire."
+  "Send a payload up the wire with criteria."
   ([wire criteria]
    (act wire criteria {}))
   ([wire criteria payload]
