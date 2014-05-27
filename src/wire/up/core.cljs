@@ -8,7 +8,7 @@
 (defn base-dom-criteria [type action]
   {:type   :dom
    :class  (keyword type)
-   :key    (keyword (str type "-" action))
+   :event  (keyword (str type "-" action))
    :action (keyword action)})
 
 ;; Build specific criteria
