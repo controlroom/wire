@@ -5,10 +5,12 @@
 (deftest unit-find-tap-fns
   (testing "single match"
     (let [registered {(set {:b 1}) '(2)}]
-      (testing "can find registered"
-        (is (= (find-tap-fns {:b 1} registered) '(2))))
-      (testing "will ignore misses"
-        (is (empty? (find-tap-fns {:b 4} registered)))))))
+      (is (= (find-tap-fns {:b 1} registered) '(2)) "can find registered")
+      (is (empty? (find-tap-fns {:b 4} registered)) "will ignore misses")))
+  (testing "multiple match"
+    (let [registered {(set {:b 2 :a :a}) '(12)
+                      (set {:c 2}) nil}]
+      (is (= (find-tap-fns {:a :a :b 2} registered) '(12))))))
 
 (deftest wire-lay
   (testing "updating context"
@@ -68,6 +70,29 @@
           (act :k {:data nil}))
       (is (= (:id @r) 1)))))
 
+(deftest wire-tap-deep-cuts
+  (testing "implicit criteria keys do not get overridden"
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap :awesome (fn [o] (reset! r o)))
+          (tap :facebook (fn [o] (reset! r o)))
+          (lay :awesome)
+          (act :facebook {:test "basic"}))
+      (is (= (:test @r) "basic")))
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap :awesome (fn [o] (reset! r o)))
+          (lay :awesome)
+          (act :neat {:test "basic"}))
+      (is (= (:test @r) "basic"))))
+  (testing "implicit critiera keys can be accessed with complex criteria"
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap {:key :awesome :other :b} (fn [o] (reset! r o)))
+          (lay :awesome)
+          (act {:other :b} {:test "basic"}))
+      (is (= (:test @r) "basic")))))
+
 (deftest wire-act-basics
   (testing "act payload will override context"
     (let [r (atom nil)]
@@ -120,6 +145,7 @@
   (unit-find-tap-fns)
   (wire-lay)
   (wire-tap-basics)
+  (wire-tap-deep-cuts)
   (wire-act-basics)
   (wire-tap-multiple-criteria)
   (wire-taps))

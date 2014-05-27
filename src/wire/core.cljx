@@ -30,21 +30,47 @@
         (doseq [f fs]
           (f (merge {::wire this}
                     (:context data)
-                    payload)))))))
+                    payload)))))
+    this))
 
-(defn data [wire]
+(defn data
+  "Get at the wire's data structure. It's a private thing."
+  [wire]
   (-data wire))
 
-(defn lay
-  "Allows you to inject both data and a namespace into your wire. The data and
-  namespace can only be retrieved by an owner and only when a wire is acted
-  upon. Attaching data allows for components to have state, yet behave
-  anonymously from that state"
-  [wire key & data]
-  (-lay wire key (first data)))
+(defn- keyed-criteria
+  "When unmapped value is used as criteria:
 
-(defn- keyed-criteria [criteria]
-  (if (map? criteria) criteria {:key criteria}))
+  (lay wire :my-key {:data some data})
+
+  We translate the value to ensure that we dont override any other unmapped
+  keys:
+
+  {:__key-:my-key :__key-:my-key}
+
+  This keeps the root criteria hashmap generally conflict free. We do the same
+  thing for {:key :my-key} as we consider :key to be the specialest key."
+  [criteria]
+  (assert (not (sequential? criteria)) "Only hashmaps, strings, and keywords as critera")
+  (letfn [(keyworded [key] (keyword (str "__key-" key)))]
+    (cond
+      (and (map? criteria) (contains? criteria :key))
+        (let [key (:key criteria)]
+          (merge
+            (dissoc criteria :key)
+            {(keyworded key) (keyworded key)}))
+      (map? criteria)
+        criteria
+      :else
+        {(keyworded criteria) (keyworded criteria)})))
+
+(defn lay
+  "Allows you to inject both data and critera into your wire. The data can only
+  be retrieved by an owner and only when a wire is acted upon. Attaching data
+  allows for components to have state, yet behave anonymously from that state.
+  The critera is merged with any act criteria down the wire"
+  [wire criteria & data]
+  (-lay wire (keyed-criteria criteria) (first data)))
 
 (defn tap
   "Attaches a wiretap listener to some criteria. When the wire is acted upon,
