@@ -39,9 +39,9 @@
   {:event (:event data)})
 
 (defmethod build-data :form [data]
-  {:event (:event data)})
+  (let [event (:event data)]
+    {:value (.. event -target -value)
+     :event event}))
 
 (defmethod build-data :focus [data]
   {:event (:event data)})
-
-
