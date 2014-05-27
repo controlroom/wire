@@ -29,11 +29,30 @@
    [:onKeyUp    "keyup"    "up"]
    [:onKeyPress "keypress" "press"]])
 
+(def form-event-terms
+  [[:onChange "change" "change"]
+   [:onInput  "input"  "input"]
+   [:onSubmit "submit" "submit"]])
+
+(def focus-event-terms
+  [[:onFocus  "focus"  "focus"]
+   [:onBlur   "blur"   "blur"]])
+
+(def scroll-event-terms
+  [[:onScroll "scroll" "scroll"]])
+
+(def wheel-event-terms
+  [[:onWheel  "wheel"  "wheel"]])
+
 ;; Cached data transformations
 (def all-terms
   (concat
     keyboard-event-terms
-    mouse-event-terms))
+    mouse-event-terms
+    form-event-terms
+    focus-event-terms
+    scroll-event-terms
+    wheel-event-terms))
 
 (def react-handler->dom-listener
   (into {} (map (fn [[react-h dom-l _]] [react-h dom-l]) all-terms)))
@@ -51,3 +70,34 @@
 (defn build-keyboard-events [event-fn]
   (build-events event-fn :keyboard keyboard-event-terms))
 
+(defn build-form-events [event-fn]
+  (build-events event-fn :form form-event-terms))
+
+(defn build-focus-events [event-fn]
+  (build-events event-fn :focus focus-event-terms))
+
+(defn build-scroll-events [event-fn]
+  (build-events event-fn :scroll scroll-event-terms))
+
+(def default-event-group
+  [build-mouse-events
+   build-scroll-events])
+
+(def event-group-1
+  [["input" "textarea" "select" "option" "button"]
+   [build-keyboard-events build-form-events build-focus-events]])
+
+(def event-group-2
+  [["form" "optgroup" "fieldset" "label"]
+   [build-form-events build-focus-events]])
+
+(defn events-for-tag
+  "inject event builders based on tag type."
+  [tag event-fn]
+  (apply merge (map
+    (fn [event-build-fn] (event-build-fn event-fn))
+    (-> default-event-group
+      (cond-> (some (partial = tag) (first event-group-1))
+              (concat (second event-group-1)))
+      (cond-> (some (partial = tag) (first event-group-2))
+              (concat (second event-group-2)))))))

@@ -17,8 +17,19 @@
 (defn keyword->event [kw]
   (get events/react-handler->dom-listener kw))
 
+(defn determine-tag-name
+  "Since we are recieveng dom objects, we must tease out its actual tag name.
+  It gets a little more complicated with non-tag dom objects"
+  [dom]
+  (if-let [name (.-tagName dom)]
+    (.toLowerCase name)
+    (condp = dom
+      js/window "window"
+      js/document "document")))
+
 (defn inject-events [wire dom]
-  (doseq [[kw f] (events/build-mouse-events (partial event-fn dom))]
+  (doseq [[kw f] (events/events-for-tag (determine-tag-name dom)
+                                        (partial event-fn dom))]
     (.addEventListener dom (keyword->event kw) #(f %))))
 
 (defn wire-up
