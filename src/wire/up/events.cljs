@@ -57,11 +57,24 @@
 (def react-handler->dom-listener
   (into {} (map (fn [[react-h dom-l _]] [react-h dom-l]) all-terms)))
 
+
+(defn delayed-event-fn-wrapper [event-fn]
+  (fn [event]
+    (js/setTimeout #(event-fn event) 100)))
+
 ;; Event builders
-(defn build-events [event-fn type terms]
+(defn build-events
+  "Build all event functions.
+
+  We make an exception for onBlur since a delay is used to ensure that the blur
+  is registered after all other possible actions. Clicking out of a textbox for
+  example"
+  [event-fn type terms]
   (into {}
     (map (fn [[react-h _ show-h]]
-              [react-h (event-fn type show-h)])
+              (if (= :onBlur react-h)
+                [react-h (delayed-event-fn-wrapper (event-fn type show-h))]
+                [react-h (event-fn type show-h)]))
          terms)))
 
 (defn build-mouse-events [event-fn]
@@ -94,10 +107,11 @@
 (defn events-for-tag
   "inject event builders based on tag type."
   [tag event-fn]
-  (apply merge (map
-    (fn [event-build-fn] (event-build-fn event-fn))
-    (-> default-event-group
-      (cond-> (some (partial = tag) (first event-group-1))
-              (concat (second event-group-1)))
-      (cond-> (some (partial = tag) (first event-group-2))
-              (concat (second event-group-2)))))))
+  (apply merge
+    (map
+      (fn [event-build-fn] (event-build-fn event-fn))
+      (-> default-event-group
+        (cond-> (some (partial = tag) (first event-group-1))
+                (concat (second event-group-1)))
+        (cond-> (some (partial = tag) (first event-group-2))
+                (concat (second event-group-2)))))))
