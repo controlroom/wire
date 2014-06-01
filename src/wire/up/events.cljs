@@ -41,6 +41,7 @@
 (def scroll-event-terms
   [[:onScroll "scroll" "scroll"]])
 
+;; Not implemented
 (def wheel-event-terms
   [[:onWheel  "wheel"  "wheel"]])
 

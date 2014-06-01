@@ -8,7 +8,7 @@
   (-tap [this criteria f])
   (-act [this criteria payload]))
 
-(defn- wire-set
+(defn wire-set
   "Allow for vectors of values to be used as criteria, we just transpose
   vector keys into another set of parings ex:
   {:a [:b :c]} => #{[:a :b] [:a :c]}"
@@ -27,6 +27,16 @@
        (map #(second %))
        (apply concat)))
 
+(defn- merge-into-vec
+  "Merge conflicts into vectors. ex:
+  (merge-into-vec {:a :b} {:a :c}) => {:a [:b :c]}"
+  [& maps]
+  (into {} (map
+             (fn [[k v]] [k (if (= (count v) 1)
+                              (last (first v))
+                              (into [] (take-nth 2 (rest (flatten v)))))])
+             (group-by first (apply concat maps)))))
+
 (declare wire)
 
 (deftype Wire [data]
@@ -35,11 +45,11 @@
   (-lay [this criteria context]
     (wire (-> data
               (update-in [:context] merge context)
-              (update-in [:criteria] merge criteria))))
+              (update-in [:criteria] merge-into-vec criteria))))
   (-tap [this criteria f]
     (wire (update-in data [:taps (wire-set criteria)] conj f)))
   (-act [this criteria payload]
-    (let [criteria (merge (:criteria data) criteria)
+    (let [criteria (merge-into-vec (:criteria data) criteria)
           fs (find-tap-fns criteria (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
@@ -55,30 +65,15 @@
   (-data wire))
 
 (defn- keyed-criteria
-  "When unmapped value is used as criteria:
-
-  (lay wire :my-key {:data some data})
-
-  We translate the value to ensure that we dont override any other unmapped
-  keys:
-
-  {:__key-:my-key :__key-:my-key}
-
-  This keeps the root criteria hashmap generally conflict free. We do the same
+  "This keeps the root criteria hashmap generally conflict free. We do the same
   thing for {:key :my-key} as we consider :key to be the specialest key."
   [criteria]
   (assert (not (sequential? criteria)) "Only hashmaps, strings, and keywords as critera")
-  (letfn [(keyworded [key] (keyword (str "__key-" key)))]
-    (cond
-      (and (map? criteria) (contains? criteria :key))
-        (let [key (:key criteria)]
-          (merge
-            (dissoc criteria :key)
-            {(keyworded key) (keyworded key)}))
-      (map? criteria)
-        criteria
-      :else
-        {(keyworded criteria) (keyworded criteria)})))
+  (cond
+    (map? criteria)
+      criteria
+    :else
+      {:key criteria}))
 
 (defn lay
   "Allows you to inject both data and critera into your wire. The data can only

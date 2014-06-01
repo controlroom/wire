@@ -4,11 +4,11 @@
 
 (deftest unit-find-tap-fns
   (testing "single match"
-    (let [r {(set {:b 1}) '(2)}]
+    (let [r {(wire-set {:b 1}) '(2)}]
       (is (= (find-tap-fns {:b 1} r) '(2)) "can find r")
       (is (empty? (find-tap-fns {:b 4} r)) "will ignore misses")))
   (testing "multiple match"
-    (let [r {(set {:b 2 :a :a}) '(12)
+    (let [r {(wire-set {:b 2 :a :a}) '(12)
                       (set {:c 2}) nil}]
       (is (= (find-tap-fns {:a :a :b 2} r) '(12)))))
   (testing "vector values"
