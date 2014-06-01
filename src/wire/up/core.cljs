@@ -31,19 +31,28 @@
 (defmethod build-criteria :focus [data]
   (base-dom-criteria "focus" (:action data)))
 
+(defn base-data [data]
+  (let [event (:event data)]
+    {:target   (.-target event)
+     :value    (if-let [target (.. event -target)]
+                 (.-value target)
+                 nil)
+     :type     (.-type event)
+     :event    event}))
+
 ;; Build specific data
 (defmulti  build-data :type)
 
 (defmethod build-data :mouse [data]
-  {:event (:event data)})
+  (base-data data))
 
 (defmethod build-data :keyboard [data]
-  {:event (:event data)})
+  (base-data data))
 
 (defmethod build-data :form [data]
   (let [event (:event data)]
-    {:value (.. event -target -value)
-     :event event}))
+    (merge (base-data data)
+           {:value (.. event -target -value)})))
 
 (defmethod build-data :focus [data]
-  {:event (:event data)})
+  (base-data data))
