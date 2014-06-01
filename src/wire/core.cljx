@@ -8,9 +8,22 @@
   (-tap [this criteria f])
   (-act [this criteria payload]))
 
-(defn find-tap-fns [act-criteria registered-taps]
+(defn- wire-set
+  "Allow for vectors of values to be used as criteria, we just transpose
+  vector keys into another set of parings ex:
+  {:a [:b :c]} => #{[:a :b] [:a :c]}"
+  [m]
+  (set (mapcat #(if (sequential? (second %))
+             (map vector (repeat (first %)) (second %))
+             [%])
+          (into [] m))))
+
+(defn find-tap-fns
+  "Search through all registered wiretap fns and use set logic to find any
+  criteria matches to execute"
+  [act-criteria registered-taps]
   (->> registered-taps
-       (filter #(empty? (difference (first %) (set act-criteria))))
+       (filter #(empty? (difference (first %) (wire-set act-criteria))))
        (map #(second %))
        (apply concat)))
 
@@ -24,7 +37,7 @@
               (update-in [:context] merge context)
               (update-in [:criteria] merge criteria))))
   (-tap [this criteria f]
-    (wire (update-in data [:taps (set criteria)] conj f)))
+    (wire (update-in data [:taps (wire-set criteria)] conj f)))
   (-act [this criteria payload]
     (let [criteria (merge (:criteria data) criteria)
           fs (find-tap-fns criteria (:taps data))]
