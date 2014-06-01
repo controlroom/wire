@@ -8,7 +8,7 @@
      (assert (satisfies? wire/BaseWire wire#)
              "The first argument for a wired tag should be a wire")
      (let [[opts# body#] (show/parse-tag-options vs#)
-           opts# (merge (show/inject-acts-for-tag ~(name tag) wire#)
+           opts# (merge (show/inject-acts-for-tag ~(name tag) opts# wire#)
                         {:wire wire#}
                         opts#)]
        (~(symbol (str "show.dom/" (name tag))) opts# body#))))

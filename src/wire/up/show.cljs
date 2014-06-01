@@ -6,14 +6,19 @@
             [wire.up.core]
             [wire.up.events :as events]))
 
-(defn event-fn [wire type action]
+(defn event-fn [wire tag-name opts type action]
   (fn [event]
-    (let [data {:type type, :action action, :event event, :context :show}]
+    (let [data {:type     type
+                :action   action
+                :event    event
+                :tag-name tag-name
+                :opts     opts
+                :context  :show}]
       (wire.core/act wire (wire.up.core/build-criteria data)
                           (wire.up.core/build-data data)))))
 
-(defn inject-acts-for-tag [tag-name wire]
-  (events/events-for-tag tag-name (partial event-fn wire)))
+(defn inject-acts-for-tag [tag-name opts wire]
+  (events/events-for-tag tag-name (partial event-fn wire tag-name opts)))
 
 (defn parse-tag-options [vs]
   (let [vs (remove nil? vs)]
