@@ -53,9 +53,9 @@
           fs (find-tap-fns criteria (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
-          (f (merge {::wire this}
-                    (:context data)
-                    {:critera criteria}
+          (f (merge {::wire    this
+                     :criteria criteria}
+                    (:context  data)
                     payload)))))
     this))
 
