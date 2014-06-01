@@ -26,11 +26,13 @@
   (-tap [this criteria f]
     (wire (update-in data [:taps (set criteria)] conj f)))
   (-act [this criteria payload]
-    (let [fs (find-tap-fns (merge (:criteria data) criteria) (:taps data))]
+    (let [criteria (merge (:criteria data) criteria)
+          fs (find-tap-fns criteria (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
           (f (merge {::wire this}
                     (:context data)
+                    {:critera criteria}
                     payload)))))
     this))
 
