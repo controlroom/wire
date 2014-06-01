@@ -6,10 +6,12 @@
   (get utils/keycode-map code))
 
 (defn base-dom-criteria [type action]
-  {:type   :dom
-   :class  (keyword type)
-   :event  (keyword (str type "-" action))
-   :action (keyword action)})
+  (let [event (keyword (str type "-" action)) ]
+    {:type   :dom
+     :key    event
+     :event  event
+     :class  (keyword type)
+     :action (keyword action)}))
 
 ;; Build specific criteria
 (defmulti  build-criteria :type)
