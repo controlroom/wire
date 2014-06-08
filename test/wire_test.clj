@@ -40,7 +40,14 @@
             (tap {:base :stuff} (fn [o] (reset! r o)))
             (lay {:base :stuff})
             (act :k {:test "something"}))
-        (is (= (:test @r) "something"))))))
+        (is (= (:test @r) "something")))))
+  (testing "laying nils"
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap :killer (fn [o] (reset! r o)))
+          (lay nil {:test 12})
+          (act :killer {:boop :bloop}))
+      (is (= (:test @r) 12)))))
 
 (deftest wire-tap-basics
   (testing "tap can listen to basic key messages"
@@ -149,7 +156,17 @@
             :r (fn [o] (swap! r inc))
             :r (fn [o] (swap! r inc)))
           (act :r))
-      (is (= @r 2)))))
+      (is (= @r 2))))
+  (testing "combined taps"
+    (let [r (atom 0)]
+      (-> (wire)
+          (taps
+            :r (fn [o] (swap! r inc)))
+          (taps
+            :f (fn [o] (reset! r :fill)))
+          (lay :real-stuff)
+          (act :f))
+      (is (= @r :fill)))))
 
 (deftest wire-tests
   (unit-find-tap-fns)

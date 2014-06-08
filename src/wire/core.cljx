@@ -45,7 +45,8 @@
   (-lay [this criteria context]
     (wire (-> data
               (update-in [:context] merge context)
-              (update-in [:criteria] merge-into-vec criteria))))
+              (cond->
+                criteria (update-in [:criteria] merge-into-vec criteria)))))
   (-tap [this criteria f]
     (wire (update-in data [:taps (wire-set criteria)] conj f)))
   (-act [this criteria payload]
@@ -70,7 +71,7 @@
   [criteria]
   (assert (not (sequential? criteria)) "Only hashmaps, strings, and keywords as critera")
   (cond
-    (map? criteria)
+    (or (nil? criteria) (map? criteria))
       criteria
     :else
       {:key criteria}))
