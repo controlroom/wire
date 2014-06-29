@@ -108,6 +108,13 @@
           (tap {:other :c} (fn [o] (reset! r o)))
           (lay :awesome)
           (act {:other [:b :c]} {:test "basic"}))
+      (is (= (:test @r) "basic"))))
+  (testing "vectors as taps results in multiple key checks"
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap [:neat] (fn [o] (reset! r o)))
+          (lay :awesome)
+          (act {:key :neat} {:test "basic"}))
       (is (= (:test @r) "basic")))))
 
 (deftest wire-act-basics

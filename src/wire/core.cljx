@@ -69,7 +69,6 @@
   "This keeps the root criteria hashmap generally conflict free. We do the same
   thing for {:key :my-key} as we consider :key to be the specialest key."
   [criteria]
-  (assert (not (sequential? criteria)) "Only hashmaps, strings, and keywords as critera")
   (cond
     (or (nil? criteria) (map? criteria))
       criteria
