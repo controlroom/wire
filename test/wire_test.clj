@@ -47,6 +47,14 @@
           (tap :killer (fn [o] (reset! r o)))
           (lay nil {:test 12})
           (act :killer {:boop :bloop}))
+      (is (= (:test @r) 12))))
+  (testing "mutiple lays"
+    (let [r (atom nil)]
+      (-> (wire)
+          (tap :killer (fn [o] (reset! r o)))
+          (lay [:radical :killer] {:test 12})
+          (lay :another nil)
+          (act :nope {:boop :bloop}))
       (is (= (:test @r) 12)))))
 
 (deftest wire-tap-basics

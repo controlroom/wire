@@ -27,15 +27,29 @@
        (map #(second %))
        (apply concat)))
 
-(defn- merge-into-vec
+(defn group-merge
   "Merge conflicts into vectors. ex:
-  (merge-into-vec {:a :b} {:a :c}) => {:a [:b :c]}"
+  (group-merge {:a :b} {:a :c}) => {:a [:b :c]}
+  (group-merge {:a [:n :b]} {:a :c}) => {:a [:n :b :c]}"
   [& maps]
-  (into {} (map
-             (fn [[k v]] [k (if (= (count v) 1)
-                              (last (first v))
-                              (into [] (take-nth 2 (rest (flatten v)))))])
-             (group-by first (apply concat maps)))))
+  (reduce
+    (fn [o h]
+      (reduce
+        (fn [o [k v]]
+          (let [cv (get o k)
+                cv (when cv (if (sequential? cv) cv [cv]))
+                seq-v       (if (sequential? v)  v  [v])]
+            (if cv
+              (assoc o k (into cv seq-v))
+              (assoc o k v))))
+        o h))
+    {}
+    maps))
+
+(comment
+  (apply group-merge
+    [{:a [:b :n]} {:a :c :b 3} {{:cool 2} 100} {{:cool 2} [:a 4]}])
+  (merge-into-vec {:a [:b :n]} {:a :c}))
 
 (declare wire)
 
@@ -46,11 +60,11 @@
     (wire (-> data
               (update-in [:context] merge context)
               (cond->
-                criteria (update-in [:criteria] merge-into-vec criteria)))))
+                criteria (update-in [:criteria] group-merge criteria)))))
   (-tap [this criteria f]
     (wire (update-in data [:taps (wire-set criteria)] conj f)))
   (-act [this criteria payload]
-    (let [criteria (merge-into-vec (:criteria data) criteria)
+    (let [criteria (group-merge (:criteria data) criteria)
           fs (find-tap-fns criteria (:taps data))]
       (if (not (empty? fs))
         (doseq [f fs]
