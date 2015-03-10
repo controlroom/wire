@@ -24,6 +24,12 @@
    [:onMouseOver   "mouseover"  "over"]
    [:onMouseUp     "mouseup"    "up"]])
 
+(def touch-event-terms
+  [[:onTouchStart "touchstart" "start"]
+   [:onTouchEnd "touchend" "end"]
+   [:onTouchMove "touchmove" "move"]
+   [:onTouchCancel "touchcancel" "cancel"]])
+
 (def keyboard-event-terms
   [[:onKeyDown  "keydown"  "down"]
    [:onKeyUp    "keyup"    "up"]
@@ -48,6 +54,7 @@
 ;; Cached data transformations
 (def all-terms
   (concat
+    touch-event-terms
     keyboard-event-terms
     mouse-event-terms
     form-event-terms
@@ -78,6 +85,9 @@
                 [react-h (event-fn type show-h)]))
          terms)))
 
+(defn build-touch-events [event-fn]
+  (build-events event-fn :touch touch-event-terms))
+
 (defn build-mouse-events [event-fn]
   (build-events event-fn :mouse mouse-event-terms))
 
@@ -95,6 +105,7 @@
 
 (def default-event-group
   [build-mouse-events
+   build-touch-events
    build-scroll-events])
 
 (def event-group-1

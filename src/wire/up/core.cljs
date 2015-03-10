@@ -23,6 +23,9 @@
 ;; Build specific criteria
 (defmulti  build-criteria :type)
 
+(defmethod build-criteria :touch [data]
+  (base-dom-criteria "touch" data))
+
 (defmethod build-criteria :mouse [data]
   (base-dom-criteria "mouse" data))
 
@@ -49,6 +52,9 @@
 
 ;; Build specific data
 (defmulti  build-data :type)
+
+(defmethod build-data :touch [data]
+  (base-data data))
 
 (defmethod build-data :mouse [data]
   (base-data data))
