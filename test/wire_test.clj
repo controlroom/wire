@@ -143,25 +143,25 @@
 
 (deftest wire-tap-multiple-criteria
   (let [match {:data :something}]
-   (testing "can tap and act with map criteria"
-    (testing "- same criteria"
-      (let [r (atom nil)]
-        (-> (wire)
-            (tap {:type :input} (fn [o] (reset! r o)))
-            (act {:type :input} match))
-        (is (= (:data @r) :something))))
-    (testing " - different criteria"
-      (let [r (atom nil)]
-        (-> (wire)
-            (tap {:other :basic} (fn [o] (reset! r o)))
-            (act {:type :something :other :basic} match))
-        (is (= (:data @r) :something))))
-     (testing " - criteria with a miss"
-       (let [r (atom nil)]
-         (-> (wire)
-             (tap {:type :input :key :once} (fn [o] (reset! r o)))
-             (act {:type :input} match))
-         (is (not= @r match)))))))
+    (testing "can tap and act with map criteria"
+      (testing "- same criteria"
+        (let [r (atom nil)]
+          (-> (wire)
+              (tap {:type :input} (fn [o] (reset! r o)))
+              (act {:type :input} match))
+          (is (= (:data @r) :something))))
+      (testing " - different criteria"
+        (let [r (atom nil)]
+          (-> (wire)
+              (tap {:other :basic} (fn [o] (reset! r o)))
+              (act {:type :something :other :basic} match))
+          (is (= (:data @r) :something))))
+      (testing " - criteria with a miss"
+        (let [r (atom nil)]
+          (-> (wire)
+              (tap {:type :input :key :once} (fn [o] (reset! r o)))
+              (act {:type :input} match))
+          (is (not= @r match)))))))
 
 (deftest wire-taps
   (testing "can create multiple wiretaps at once"
@@ -182,6 +182,7 @@
           (lay :real-stuff)
           (act :f))
       (is (= @r :fill)))))
+
 
 (deftest wire-tests
   (unit-find-tap-fns)
