@@ -1,10 +1,9 @@
-<img src="http://controlroom.io/images/wire-logo.png?1234" width=300/>
+<img src="http://controlroom.io/images/wire-logo.png?1235" width=350/>
 
 **Wire** is a Clojure(Script) library for sanely managing component
 communication
 
-Wire is still a proof of concept and is undergoing daily breaking changes, thank
-you come again.
+Wire is still a proof of concept and is undergoing daily breaking changes.
 
 ## License
 
