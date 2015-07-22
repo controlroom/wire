@@ -20,10 +20,14 @@
 (defn inject-acts-for-tag [tag-name opts wire]
   (events/events-for-tag tag-name (partial event-fn wire tag-name opts)))
 
+(defn array-map? [o]
+  (instance? cljs.core/PersistentArrayMap o))
+
 (defn parse-tag-options [vs]
-  (let [vs (remove nil? vs)]
-    (if (map? (first vs))
-      [(first vs) (rest vs)]
-      [{}          vs])))
+  (let [vs (remove nil? vs)
+        end (if (map? (first vs))
+              [(first vs) (rest vs)]
+              [{}          vs])]
+    end))
 
 (wire.up.show/build-tags)
