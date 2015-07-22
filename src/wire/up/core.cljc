@@ -8,17 +8,28 @@
 
 (defn base-dom-criteria [type data]
   (let [action (:action data)
-        opts   (:opts data)]
+        opts   (:opts data)
+        ks     []
+        base   (keyword (str type "-" action))
+        tag    (keyword (:tag-name data))
+        id     (when (contains? opts :id) (:id opts))
+        klass  (when (and (contains? opts :className)
+                          (not (empty? (:className opts))))
+                 (string/split (:className opts) #" "))]
     (-> {:type   :dom
          :group  (keyword type)
-         :key    (keyword (str type "-" action))
-         :tag    (keyword (:tag-name data))
-         :action (keyword action)}
-        (cond-> (contains? opts :id)
-          (assoc :id (keyword (:id opts))))
-        (cond-> (and (contains? opts :className) (not (empty? (:className opts))))
-          (assoc :class
-                 (mapv keyword (string/split (:className opts) #" ")))))))
+         :tag    tag
+         :action (keyword action)
+         :key    (-> []
+                     (conj base tag)
+                     (cond-> id (conj (keyword (str "#" id))))
+                     (cond-> klass (into (mapv #(keyword (str "." %)) klass))))}
+        (cond-> id (assoc :id (keyword id)))
+        (cond-> klass (assoc :class (mapv keyword klass))))))
+
+;; (base-dom-criteria "form" {:opts {:className "kevin webster"
+;;                                   :id "fun"
+;;                                   :tag-name "div"}})
 
 ;; Build specific criteria
 (defmulti  build-criteria :type)
@@ -33,7 +44,9 @@
   (let [base (base-dom-criteria "keyboard" data)
         desc (keycode->descriptor (.-keyCode (:event data)))]
     (-> base
-        (cond-> desc (assoc :keypress desc)))))
+        (cond-> desc (assoc :keypress desc))
+        #_(cond-> desc (assoc :key (vector (get base :key)
+                                           (keyword (str "keypress-" (name desc)))))))))
 
 (defmethod build-criteria :form [data]
   (base-dom-criteria "form" data))

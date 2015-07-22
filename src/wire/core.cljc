@@ -48,8 +48,7 @@
 
 (comment
   (apply group-merge
-    [{:a [:b :n]} {:a :c :b 3} {{:cool 2} 100} {{:cool 2} [:a 4]}])
-  (merge-into-vec {:a [:b :n]} {:a :c}))
+    [{:a [:b :n]} {:a :c :b 3} {{:cool 2} 100} {{:cool 2} [:a 4]}]))
 
 (declare wire)
 
@@ -66,12 +65,11 @@
   (-act [this criteria payload]
     (let [criteria (group-merge (:criteria data) criteria)
           fs (find-tap-fns criteria (:taps data))]
-      (if (not (empty? fs))
-        (doseq [f fs]
-          (f (merge {::wire    this
-                     :criteria criteria}
-                    (:context  data)
-                    payload)))))
+      (doseq [f fs]
+        (f (merge {::wire    this
+                   :criteria criteria}
+                  (:context  data)
+                  payload))))
     this))
 
 (defn data
@@ -99,7 +97,7 @@
 
 (defn tap
   "Attaches a wiretap listener to some criteria. When the wire is acted upon,
-  it looks for matching criteria on collected wiretaps"
+  it looks for matching criteria on collected wiretaps."
   [wire criteria f]
   (-tap wire (keyed-criteria criteria) f))
 
@@ -111,6 +109,11 @@
     {:other :keys} (fn [o] (somethind-else o)))"
   [wire & taps]
   (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
+
+(defn mute-tap
+  "Ignore any other taps down the tap chain"
+  [wire]
+  ())
 
 (defn act
   "Send a payload up the wire with criteria."
