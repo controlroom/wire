@@ -27,10 +27,6 @@
         (cond-> id (assoc :id (keyword id)))
         (cond-> klass (assoc :class (mapv keyword klass))))))
 
-;; (base-dom-criteria "form" {:opts {:className "kevin webster"
-;;                                   :id "fun"
-;;                                   :tag-name "div"}})
-
 ;; Build specific criteria
 (defmulti  build-criteria :type)
 
@@ -45,8 +41,16 @@
         desc (keycode->descriptor (.-keyCode (:event data)))]
     (-> base
         (cond-> desc (assoc :keypress desc))
-        #_(cond-> desc (assoc :key (vector (get base :key)
-                                           (keyword (str "keypress-" (name desc)))))))))
+        (cond-> desc (update :key conj (keyword (str "keypress-" (name desc))))))))
+
+(comment
+  (build-criteria {:type :keyboard
+                   :tag-name "div"
+                   :action "blur"
+                   :opts {:className "fun test here"
+                          :id "fun"
+                          :tag-name "div"}}))
+
 
 (defmethod build-criteria :form [data]
   (base-dom-criteria "form" data))
