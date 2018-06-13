@@ -68,6 +68,7 @@
 
 (defn delayed-event-fn-wrapper [event-fn]
   (fn [event]
+    (.persist event)
     (js/setTimeout #(event-fn event) 100)))
 
 ;; Event builders

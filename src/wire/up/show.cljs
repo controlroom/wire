@@ -26,8 +26,8 @@
 (defn parse-tag-options [vs]
   (let [vs (remove nil? vs)
         end (if (map? (first vs))
-              [(first vs) (rest vs)]
-              [{}          vs])]
+              [(first vs) (next vs)]
+              [{}         (seq vs)])]
     end))
 
 (wire.up.show/build-tags)
