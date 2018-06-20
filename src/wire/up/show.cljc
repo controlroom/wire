@@ -1,10 +1,11 @@
 (ns wire.up.show
-  (:refer-clojure :exclude [map meta time])
-  (:require-macros [wire.up.show])
-  (:require [show.dom]
-            [wire.core]
-            [wire.up.core]
-            [wire.up.events :as events]))
+  #?(:cljs
+     (:refer-clojure :exclude [map meta time])
+     (:require
+       [show.dom]
+       [wire.core]
+       [wire.up.core]
+       [wire.up.events :as events])))
 
 (defn event-fn [wire tag-name opts type action]
   (fn [event]
@@ -30,4 +31,17 @@
               [{}         (seq vs)])]
     end))
 
-(wire.up.show/build-tags)
+#?(:clj
+   (defn wired-tag [tag]
+     `(defn ~tag [wire# & vs#]
+        (assert (satisfies? wire.core/BaseWire wire#)
+                "The first argument for a wired tag should be a wire")
+        (let [[opts# body#] (wire.up.show/parse-tag-options vs#)
+              opts# (merge (wire.up.show/inject-acts-for-tag ~(name tag) opts# wire#)
+                           {:wire wire#}
+                           opts#)]
+          (~(symbol (str "show.dom/" (name tag))) opts# body#))))
+   (defmacro build-tags []
+     `(do ~@(cljs.core/map wired-tag show.dom/tags))))
+
+(build-tags)
