@@ -1,4 +1,4 @@
-(ns wire-test
+(ns wire.core-test
   (:require [clojure.test :refer :all]
             [wire.core :refer :all]))
 
