@@ -1,6 +1,7 @@
 (ns wire.core
   "Wire is a simple abstraction allowing for message streaming"
-  (:require [clojure.set :refer [difference]]))
+  (:require
+    [clojure.set :refer [difference]]))
 
 (defprotocol BaseWire
   (-data [this])
