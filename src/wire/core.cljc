@@ -111,11 +111,6 @@
   [wire & taps]
   (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
 
-(defn mute-tap
-  "Ignore any other taps down the tap chain"
-  [wire]
-  ())
-
 (defn act
   "Send a payload up the wire with criteria."
   ([wire criteria]

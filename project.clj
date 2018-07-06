@@ -1,4 +1,4 @@
-(defproject controlroom/wire "0.2.1"
+(defproject controlroom/wire "0.3.0"
   :jar-exclusions  [#"\.swp|\.swo|\.DS_Store"]
   :description "Sane intercomponent communication"
   :url "http://controlroom.io/wire"

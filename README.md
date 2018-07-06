@@ -1,59 +1,40 @@
 **Wire** is a Clojure(Script) library for sanely managing component
 communication
 
-Wire is still a proof of concept and is undergoing breaking changes.
+Wire is still a _proof of concept_ and is undergoing breaking changes.
 
 ## Simple usage
 
-Wire pairs well with [Show](https://github.com/controlroom/show)
-
 ```clojure
-(ns basic-wired
-  (:require [show.core    :as show]
-            [show.dom     :as dom]
-            [wire.up.show :as wired]
-            [wire.core    :as w]))
+(require '[wire.core :as w])
 
-;; Create a wire and tap on a message
-(def root-wire
-  (w/tap (w/wire)
-    :mouse-click (fn [evt] (println "root wire heard mouse-click"))))
+;; Create new wire and wire tap for a message. Any change functions
+;; (tap, lay) are immutable and create a new wire.
+(def basic-wire 
+  (-> (w/wire)
+      (w/tap :hello 
+        (fn [{:keys [msg user]}] 
+          (println (str "hello " msg " from " (or user "nobody")))))))
 
-;; Since we laid the id data into the wire, there is no need to worry about
-;; keeping track of anything other than selection state
-(show/defclass Widget [component]
-  (render [{:keys [selected wire name]} _]
-    (dom/div
-      (wired/button wire name)
-      (dom/p {:style {:display (if selected "block" "none")}}
-             "You Selected me!"))))
+;; Send message up the wire
+(w/act basic-wire :hello {:msg "world"}) ;; => hello world from nobody
 
-;; Pass the wire into children and tap on messages if you want
-(show/defclass App [component]
-  (initial-state []
-    :selected-widget nil
-    :widgets (for [i (range 20)] (str "widget-" i))
-    :wire (w/tap root-wire :mouse-click
-            #(show/assoc! component :selected-widget (:id %))))
-  (render [params {:keys [widgets wire selected-widget]}]
-    (dom/div
-      (map-indexed (fn [idx name]
-                     (Widget {:wire (w/lay wire nil {:id idx})
-                              :selected (= selected-widget idx)
-                              :name name}))
-                   widgets))))
+;; Create a new wire with extra data laid 
+(def richs-wire
+  (w/lay basic-wire nil {:user "rich"}))
 
-(show/render-component
-  (App)
-  (.getElementById js/document "app"))
+;; Send message as you would, with extra laid context
+(w/act richs-wire :hello {:msg "world"}) ;; => hello world from rich
+
+;; The initial wire is untouched
+(w/act basic-wire :hello {:msg "world"}) ;; => hello world from nobody
 ```
 
-A click on the widget button changes the selection and also prints the root-wire
-message.
+Wire pairs well with [Show](https://github.com/controlroom/show). Check out [wired-show](https://github.com/controlroom/wired-show) to see how you can easily use wire with dom objects.
 
 ## License
 
-Copyright © 2014 controlroom.io
+Copyright © 2018 controlroom.io
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
