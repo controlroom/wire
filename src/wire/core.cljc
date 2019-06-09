@@ -96,20 +96,23 @@
   [wire criteria & data]
   (-lay wire (keyed-criteria criteria) (first data)))
 
-(defn tap
+(defmacro tap
   "Attaches a wiretap listener to some criteria. When the wire is acted upon,
   it looks for matching criteria on collected wiretaps."
   [wire criteria f]
-  (-tap wire (keyed-criteria criteria) f))
+  `(-tap ~wire ~(keyed-criteria criteria) ~f))
 
-(defn taps
+(defmacro taps
   "Allow attachment of multiple taps at once. Can list keys/fns in pairs.
 
   (wire/taps wire
     :key-1         (fn [o] (do-something o))
     {:other :keys} (fn [o] (somethind-else o)))"
   [wire & taps]
-  (reduce (fn [w [key f]] (tap w key f)) wire (partition 2 taps)))
+  `(reduce (fn [w# [key# f#]]
+             (tap w# key# f#))
+           ~wire
+           (partition 2 (list ~@taps))))
 
 (defn act
   "Send a payload up the wire with criteria."
